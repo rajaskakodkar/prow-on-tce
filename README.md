@@ -18,7 +18,7 @@ https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy
 
 ### Bootstrap up Tanzu Community Edition Cluster
 
-Follow the steps mentioned in https://tanzucommunityedition.io/docs/latest/getting-started/ to create a Management Cluster and a Workload Cluster for Prow Deployment.
+Follow the steps mentioned in https://tanzucommunityedition.io/docs/latest/getting-started/ to create a Management Cluster and a Workload Cluster for Prow Deployment on AWS.
 
 ### Install cert-manager and contour
 
