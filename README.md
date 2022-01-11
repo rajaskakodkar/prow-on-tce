@@ -88,10 +88,11 @@ kubectl create configmap job-config --from-file=/path/to/prow/job --dry-run=clie
 kubectl apply --server-side=true -f https://raw.githubusercontent.com/kubernetes/test-infra/master/config/prow/cluster/prowjob-crd/prowjob_customresourcedefinition.yaml
 ```
 
-Edit starter.yaml to include github App private key, id, hmac token and your domain name.
+Edit secrets.yaml to include github App private key, id, hmac token and your domain name.
 
 ```
-kubectl apply -f starter.yaml
+kubectl apply -f secrets.yaml
+kubectl apply -f components.yaml
 ```
 
 Prow should now be accessible on https://prow.yourdomain.com
@@ -99,6 +100,40 @@ Prow should now be accessible on https://prow.yourdomain.com
 ## Job configs
 
 Refer to https://github.com/vagator/test-infra for experimental prow configs and https://github.com/vagator/test-prow for prow experiments!
+
+## Run test-pods on Build Cluster
+
+Switch kube-context to Management Cluster and create a Workload Cluster.
+
+Use [gencred](https://github.com/kubernetes/test-infra/blob/master/gencred) to create the kubeconfig file (and credentials) for accessing the cluster(s). Refer to https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy.md#run-test-pods-in-different-clusters for details. 
+
+Create test-pods namespace
+
+```
+kubectl create namespace test-pods
+```
+
+Create kubeconfig secret in Service Cluster.
+
+```
+kubectl create secret generic kubeconfig --from-file=config=/path/to/kubeconfig -n prow
+```
+
+Install ProwJob CRDs in Build Cluster
+
+```
+kubectl apply --server-side=true -f https://raw.githubusercontent.com/kubernetes/test-infra/master/config/prow/cluster/prowjob-crd/prowjob_customresourcedefinition.yaml
+```
+
+Add GCS secret to upload Prow Job logs
+
+```
+kubectl -n test-pods create secret generic gcs-credentials --from-file=/path/to/service-account.json
+```
+
+Restart pods in Service Cluster
+
+Use `cluster: <cluster-alias>` in Prow Job configs to schedule jobs on Build Cluster.
 
 ## References
 
