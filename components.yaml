@@ -1,29 +1,4 @@
-# This file contains Kubernetes YAML files for the most important prow
-# components. Don't edit resources in this file. Instead, pull them out into
-# their own files.
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: prow
----
-apiVersion: v1
-kind: Secret
-metadata:
-  namespace: prow
-  name: github-token
-stringData:
-  cert: <github-app-private-key>
-  appid: "<github-app-id>"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  namespace: prow
-  name: hmac-token
-stringData:
-  # Generate via `openssl rand -hex 20`. This is the secret used in the GitHub webhook configuration
-  hmac: "<hmac-token>"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,6 +37,8 @@ spec:
         - --github-app-private-key-path=/etc/github/cert
         - --job-config-path=/etc/job-config
         env:
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config:/etc/kubeconfig/config"
         - name: GITHUB_APP_ID
           valueFrom:
             secretKeyRef:
@@ -73,6 +50,9 @@ spec:
           - name: metrics
             containerPort: 9090
         volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubeconfig
+          readOnly: true
         - name: hmac
           mountPath: /etc/webhook
           readOnly: true
@@ -102,6 +82,10 @@ spec:
           periodSeconds: 3
           timeoutSeconds: 600
       volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       - name: hmac
         secret:
           secretName: hmac-token
@@ -155,10 +139,16 @@ spec:
         - --config-path=/etc/config/config.yaml
         - --dry-run=false
         - --job-config-path=/etc/job-config
+        env:
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config:/etc/kubeconfig/config"
         ports:
         - name: metrics
           containerPort: 9090
         volumeMounts:
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
         - name: config
           mountPath: /etc/config
           readOnly: true
@@ -166,6 +156,10 @@ spec:
           mountPath: /etc/job-config
           readOnly: true
       volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       - name: config
         configMap:
           name: config
@@ -216,6 +210,8 @@ spec:
         - --cookie-secret=/etc/cookie/secret
         - --job-config-path=/etc/job-config
         env:
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config:/etc/kubeconfig/config"
         - name: GITHUB_APP_ID
           valueFrom:
             secretKeyRef:
@@ -225,6 +221,9 @@ spec:
           - name: http
             containerPort: 8080
         volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubeconfig
+          readOnly: true
         - name: oauth-config
           mountPath: /etc/githuboauth
           readOnly: true
@@ -260,6 +259,9 @@ spec:
           periodSeconds: 3
           timeoutSeconds: 600
       volumes:
+      - name: kubeconfig
+        secret:
+          secretName: kubeconfig
       - name: oauth-config
         secret:
           secretName: github-oauth-config
@@ -959,11 +961,16 @@ spec:
             secretKeyRef:
               name: github-token
               key: appid
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config:/etc/kubeconfig/config"
         ports:
         - name: metrics
           containerPort: 9090
         image: gcr.io/k8s-prow/prow-controller-manager:v20211203-281e29a97a
         volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/kubeconfig
+          readOnly: true
         - name: github-token
           mountPath: /etc/github
           readOnly: true
@@ -974,6 +981,10 @@ spec:
           mountPath: /etc/job-config
           readOnly: true
       volumes:
+      - name: kubeconfig
+        secret:
+          secretName: kubeconfig
+          defaultMode: 420
       - name: github-token
         secret:
           secretName: github-token
@@ -1116,6 +1127,8 @@ spec:
         - --github-app-private-key-path=/etc/github/cert
         - --job-config-path=/etc/job-config
         env:
+        - name: KUBECONFIG
+          value: "/etc/kubeconfig/config:/etc/kubeconfig/config"
         - name: GITHUB_APP_ID
           valueFrom:
             secretKeyRef:
@@ -1125,6 +1138,9 @@ spec:
         - name: metrics
           containerPort: 9090
         volumeMounts:
+        - mountPath: /etc/kubeconfig
+          name: kubeconfig
+          readOnly: true
         - name: config
           mountPath: /etc/config
           readOnly: true
@@ -1138,6 +1154,10 @@ spec:
           mountPath: /etc/job-config
           readOnly: true
       volumes:
+      - name: kubeconfig
+        secret:
+          defaultMode: 420
+          secretName: kubeconfig
       - name: config
         configMap:
           name: config
