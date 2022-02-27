@@ -105,33 +105,77 @@ Refer to https://github.com/vagator/test-infra for experimental prow configs and
 
 Switch kube-context to Management Cluster and create a Workload Cluster.
 
-Use [gencred](https://github.com/kubernetes/test-infra/blob/master/gencred) to create the kubeconfig file (and credentials) for accessing the cluster(s). Refer to https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy.md#run-test-pods-in-different-clusters for details. 
+Run the following command to get the kubeconfig of Workload Cluster
 
-Create test-pods namespace
+```
+tanzu cluster kubeconfig get `CLUSTER_NAME` --admin
+```
+
+Switch kube-context to Workload Cluster
+
+Run the following commands to install prowjob CRDs and secrets to GCS bucket
 
 ```
 kubectl create namespace test-pods
+kubectl apply --server-side=true -f https://raw.githubusercontent.com/kubernetes/test-infra/master/config/prow/cluster/prowjob-crd/prowjob_customresourcedefinition.yaml
+kubectl -n test-pods create secret generic gcs-credentials --from-file=/path/to/service-account.json
 ```
 
-Create kubeconfig secret in Service Cluster.
+Switch kube-context to Prow Service Cluster
+
+Use gencred to create the kubeconfig file (and credentials) for accessing the build and service cluster(s). More details in - https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy.md#run-test-pods-in-different-clusters
+
+```
+cd path/to/clone/of/test-infra
+go run ./gencred --context="WORKLOAD_CLUSTER_KUBE_CONTEXT" --name=CLUSTER_NAME --output=/path/to/kubeconfig.yaml
+```
+
+This should generate kubeconfig.yaml similar to the following yaml from https://github.com/kubernetes/test-infra/tree/master/gencred
+
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: fake-ca-data
+    server: https://1.2.3.4
+  name: oldcluster
+- cluster:
+    certificate-authority-data: fake-ca-data
+    server: https://1.2.3.4
+  name: newcluster
+contexts:
+- context:
+    cluster: oldcluster
+    user: oldcluster
+  name: oldcluster
+- context:
+    cluster: newcluster
+    user: newcluster
+  name: newcluster
+users:
+- name: oldcluster
+  user:
+    client-certificate-data: fake-cert-data
+    client-key-data: fake-key-data
+- name: newcluster
+  user:
+    client-certificate-data: fake-cert-data
+    client-key-data: fake-key-data
+```
+
+Delete existing kubeconfig secret in Prow Service Cluster
+
+```
+kubectl delete secret kubeconfig -n prow
+```
+
+Create kubeconfig secret in Prow Service Cluster
 
 ```
 kubectl create secret generic kubeconfig --from-file=config=/path/to/kubeconfig -n prow
 ```
 
-Install ProwJob CRDs in Build Cluster
-
-```
-kubectl apply --server-side=true -f https://raw.githubusercontent.com/kubernetes/test-infra/master/config/prow/cluster/prowjob-crd/prowjob_customresourcedefinition.yaml
-```
-
-Add GCS secret to upload Prow Job logs
-
-```
-kubectl -n test-pods create secret generic gcs-credentials --from-file=/path/to/service-account.json
-```
-
-Restart pods in Service Cluster
+This should restart `prow-controller-manager`, `crier`, `deck` and `sinker` pods in Prow Service. If they do not restart for some reason, delete these pods to get kubeconfig secret in effect.
 
 Use `cluster: <cluster-alias>` in Prow Job configs to schedule jobs on Build Cluster.
 
