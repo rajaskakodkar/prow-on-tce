@@ -43,11 +43,11 @@ heart:
 
 config_updater:
   maps:
-    config/prow/config.yaml:
+    test-infra/config/prow/config.yaml:
       name: config
-    config/prow/plugins.yaml:
+    test-infra/config/prow/plugins.yaml:
       name: plugins
-    config/jobs/**/*.yaml:
+    test-infra/config/jobs/**/*.yaml:
       name: job-config
       gzip: true
     experiment/test-configmap.txt:
@@ -68,7 +68,7 @@ retitle:
 plugins:
   # Enable the following for any bazelbuild repo (rules_k8s, rules_docker) that sends prow webhooks
   # Repos that do not send prow webhooks will see no effect.
-  vagator:
+  rajaskakodkar:
     plugins:
     - approve
     - assign
