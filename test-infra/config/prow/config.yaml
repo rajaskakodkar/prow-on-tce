@@ -89,7 +89,7 @@ tide:
   sync_period: 2m
   queries:
   - orgs:
-    - vagator
+    - rajaskakodkar
     labels:
     - lgtm
     - approved
