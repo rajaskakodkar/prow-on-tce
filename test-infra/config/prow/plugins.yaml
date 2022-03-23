@@ -2,13 +2,11 @@
 ---
 triggers:
 - repos:
-  - vagator/test-prow
-  - vagator/test-infra
+  - rajaskakodkar/prow-on-tce
 
 approve:
 - repos:
-  - vagator/test-prow
-  - vagator/test-infra
+  - rajaskakodkar/prow-on-tce
   require_self_approval: false
 
 help:
@@ -29,8 +27,7 @@ size:
 
 lgtm:
 - repos:
-  - vagator/test-prow
-  - vagator/test-infra
+  - rajaskakodkar/prow-on-tce
   review_acts_as_lgtm: true
 
 cat:
@@ -59,8 +56,7 @@ config_updater:
 
 welcome:
 - repos:
-  - test-prow
-  - test-infra
+  - prow-on-tce
   message_template: "Welcome @{{.AuthorLogin}}! <br><br>It looks like this is your first PR to <a href='https://github.com/{{.Org}}/{{.Repo}}'>{{.Org}}/{{.Repo}}</a> 🎉. You will be prompted by a bot to use commands during the review process. Do not be afraid to follow the prompts! It is okay to experiment."
 
 retitle:
@@ -100,6 +96,6 @@ plugins:
     - wip
     - yuks
 
-  vagator/test-infra:
+  rajaskakodkar/prow-on-tce:
     plugins:
     - config-updater

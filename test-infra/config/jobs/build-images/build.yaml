@@ -1,5 +1,5 @@
 postsubmits:
-  vagator/test-infra:
+  rajaskakodkar/prow-on-tce:
   - name: build-test-image
     decorate: true
     run_if_changed: "images/test/.*"

@@ -1,5 +1,5 @@
 presubmits:
-  vagator/test-infra:
+  rajaskakodkar/prow-on-tce:
   - name: pull-test-infra-prow-checkconfig
     decorate: true
     run_if_changed: '^(config/prow/(config|plugins).yaml$|config/jobs/.*.yaml$)'
