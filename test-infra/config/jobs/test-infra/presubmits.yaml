@@ -2,7 +2,7 @@ presubmits:
   rajaskakodkar/prow-on-tce:
   - name: pull-test-infra-prow-checkconfig
     decorate: true
-    run_if_changed: '^(config/prow/(config|plugins).yaml$|config/jobs/.*.yaml$)'
+    run_if_changed: '^(test-infra/config/prow/(config|plugins).yaml$|test-infra/config/jobs/.*.yaml$)'
     spec:
       containers:
       - image: gcr.io/k8s-prow/checkconfig:v20211216-b5865074c4
